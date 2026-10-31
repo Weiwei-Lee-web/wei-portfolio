@@ -834,9 +834,9 @@ html.zclose::view-transition-group(zhero){animation-duration:1s}
 <button type="button" class="navbtn" onClick="{{ nextWork }}" aria-label="下一件：{{ sel.nextLabel }}" style="text-align: right"><b>{{ sel.nextLabel }}</b><span style="font-size: 12px; letter-spacing: 0.2em">下一件</span><span aria-hidden="true">→</span></button>
 </div>
 <sc-if value="{{ zoom }}" hint-placeholder-val="{{ false }}">
-<div class="veil" style="position: fixed; inset: 0; z-index: 4; overflow-y: auto; background: #2a1d17f2; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 14px">
+<div class="veil" style="position: fixed; inset: 0; z-index: 4; overflow-y: auto; background: rgba(11, 9, 8, 0.96); padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 14px">
 <button type="button" class="xbtn" onClick="{{ zoomOut }}" aria-label="關閉放大（Esc）" title="關閉放大（Esc）" style="position: sticky; top: 0; align-self: flex-end; flex: 0 0 auto"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3 L13 13 M13 3 L3 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg></button>
-<img src="{{ sel.pageFull }}" alt="{{ sel.title }}・{{ sel.pageLabel }}（放大）" style="width: 100%; max-width: 900px; display: block; border-radius: 10px">
+<img src="{{ sel.pageFull }}" alt="{{ sel.title }}・{{ sel.pageLabel }}（放大）" style="width: auto; height: auto; max-width: min(100%, 1400px); max-height: calc(100vh - 104px); object-fit: contain; display: block; margin: auto 0; border-radius: 2px">
 </div>
 </sc-if>
 </div>
