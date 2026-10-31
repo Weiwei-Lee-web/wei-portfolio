@@ -191,6 +191,8 @@ html{scrollbar-gutter:stable}
 .zf .zp,.zf .zv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .zf .zv{background:transparent;opacity:0;transition:opacity .6s var(--e-out)}
 .zf .zv.live{opacity:1}
+video:fullscreen{object-fit:contain!important;background:#000!important;opacity:1!important;transform:none!important;translate:none!important;scale:none!important;filter:none!important;clip-path:none!important}
+video:-webkit-full-screen{object-fit:contain!important;background:#000!important;opacity:1!important;transform:none!important;translate:none!important;scale:none!important;filter:none!important;clip-path:none!important}
 .zf .pg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;opacity:0;mix-blend-mode:plus-lighter;transition:opacity .9s linear;-webkit-user-drag:none;user-select:none}
 .zf .pg.cov{object-fit:cover}
 .zf .pg.on{opacity:1}
