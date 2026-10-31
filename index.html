@@ -8,6 +8,11 @@
 <meta property="og:title" content="Wei AI Visuals Portfolio">
 <meta property="og:description" content="Weiwei 的 AI 美食品牌視覺作品集：商業短影音、平面設計與延伸應用。">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://weiwei-lee-web.github.io/wei-portfolio/">
+<meta property="og:image" content="https://weiwei-lee-web.github.io/wei-portfolio/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0b0908">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>html,body{height:100%;margin:0}#dc-root,#dc-root>.sc-host{height:100%}</style>
@@ -88,6 +93,18 @@ html{scrollbar-gutter:stable}
 .wrow-w>.wcard{width:100%}
 }
 @media (prefers-reduced-motion: reduce){.wrow>.wcard,.wglab{animation:none}}
+/* rwd_patch: tablets and landscape phones keep the desktop rhythm instead of the phone grid */
+@media (min-width:601px) and (max-width:900px){
+#work .wrow-v.wrow-v{grid-template-columns:repeat(4,minmax(0,1fr))}
+#work .wgrid.wgrid:not([data-split]){grid-template-columns:repeat(3,minmax(0,1fr))}
+#work .wrow-w.wrow-w>.wcard{width:calc((100% + (100% - 48px) / 2) / 3)}
+}
+/* rwd_patch: landscape phones, detail media fits the screen height as well as its width */
+@media (max-width:900px) and (orientation:landscape){
+.dz .zf.v{width:min(100%,calc((100vh - 120px) * 9 / 16))}
+.dz .zf.v.w{width:min(100%,calc((100vh - 120px) * 16 / 9))}
+.dz .zf.p{width:min(100%,calc((100vh - 150px) * var(--arn,.8)))}
+}
 /* harmony_patch: one grid, one left edge, one type scale on 作品總覽.
    column = header width; card columns C1-C4 = 4 x --cw, the first and last on the column edges */
 #work,#queue{--cw:min(220px,calc((100% - 84px) / 4));--g1:24px;--g2:clamp(40px,4.5vw,64px);--g3:clamp(80px,9vw,128px)}
@@ -611,7 +628,7 @@ html.zclose::view-transition-group(zhero){animation-duration:1s}
 <section id="queue" data-rv="queue" class="{{ rvQueue }}" style="padding: var(--g3) 0; border-top: 1px solid var(--line)">
 <div class="q-tx">
 <span class="mmeta rv">延伸應用</span>
-<h2 class="q-h" style="margin: 0; font-family: 'Noto Serif TC', serif; font-weight: 500; font-size: clamp(22px, 2.2vw, 30px); line-height: 1.45; white-space: nowrap"><span class="lm"><span>等位的時間，也是品牌的時間。</span></span></h2>
+<h2 class="q-h" style="margin: 0; font-family: 'Noto Serif TC', serif; font-weight: 500; font-size: clamp(min(22px, calc((100vw - 48px) / 14.4)), 2.2vw, 30px); line-height: 1.45; white-space: nowrap"><span class="lm"><span>等位的時間，也是品牌的時間。</span></span></h2>
 <p class="rv q-lead" style="--i: 2">把乾等的 20 分鐘，變成點餐、看影音、玩遊戲的時間。</p>
 <ol class="q-pts" aria-label="延伸應用重點">
 <li class="rv" style="--i: 2; --d0: 200ms"><span class="n">01</span><span><b>透明預估</b><span class="d">看得見前面組數與時間，少一點焦慮與跑單。</span></span></li>
@@ -854,7 +871,7 @@ class Component extends DCLogic {
   constructor(props) {
     super(props);
     this.state = {
-      page: 'home', sel: null, beat: 0, intro: true, rv: {},
+      page: (typeof location !== 'undefined' && location.hash === '#works') ? 'works' : 'home', sel: null, beat: 0, intro: true, rv: {},
       ticket: false, ahead: 4, called: false, tab: 'order', qty: [0, 0, 0, 0], ordered: false,
       game: false, gPaused: false, score: 0, left: 12, cell: -1, best: 0
     };
@@ -866,6 +883,21 @@ class Component extends DCLogic {
     this.fxTick = this.fxTick.bind(this); this.pxTick = this.pxTick.bind(this);
   }
   componentDidMount() {
+    this.onPop = () => {
+      const cur = this.state.page || 'home';
+      if (this.state.sel || this.state.zoom || (this.qz && this.qz.open)) {
+        try { history.pushState(null, '', cur === 'works' ? '#works' : (location.pathname + location.search)); } catch (err) {}
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        return;
+      }
+      const want = location.hash === '#works' ? 'works' : 'home';
+      if (want !== cur && this._go) { this._fromPop = true; this._go(want); }
+    };
+    window.addEventListener('popstate', this.onPop);
+    this.onKeyStamp = () => { this._keyT = Date.now(); };
+    window.addEventListener('keydown', this.onKeyStamp, true);
+    this.onVidUp = (ev) => { const v = ev.target; if (!v || v.tagName !== 'VIDEO' || !v.closest || !v.closest('.dz')) return; if (Date.now() - (this._keyT || 0) < 600) return; setTimeout(() => { if (document.activeElement === v) v.blur(); }, 0); };
+    ['pointerup', 'play', 'pause', 'seeked', 'volumechange'].forEach((t) => document.addEventListener(t, this.onVidUp, true));
     this.rm = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     this.lastY = window.scrollY || 0;
     this.onScroll = () => {
@@ -888,10 +920,11 @@ class Component extends DCLogic {
       if (this.state.zoom || (ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft')) return;
       const d = ev.key === 'ArrowRight' ? 1 : -1;
       const a = document.activeElement;
+      if (a && a.tagName === 'VIDEO') return;
       if (a && a.closest && a.closest('.dz .zf.p')) { ev.preventDefault(); this.zPageStep(d); return; }
       this.stepWork(d);
     };
-    window.addEventListener('keydown', this.onKey);
+    window.addEventListener('keydown', this.onKey, true);
     this.qzInit();
     this.pvInit();
     this.initReveal();
@@ -2327,6 +2360,9 @@ class Component extends DCLogic {
     this.gAuto();
   }
   componentWillUnmount() {
+    if (this.onPop) window.removeEventListener('popstate', this.onPop);
+    if (this.onVidUp) ['pointerup', 'play', 'pause', 'seeked', 'volumechange'].forEach((t) => document.removeEventListener(t, this.onVidUp, true));
+    if (this.onKeyStamp) window.removeEventListener('keydown', this.onKeyStamp, true);
     this.unmounting = true;
     this.gPause();
     this.gUnbind();
@@ -2337,7 +2373,7 @@ class Component extends DCLogic {
     if (this.onKbMode) window.removeEventListener('keydown', this.onKbMode, true);
     if (this.onPtrMode) window.removeEventListener('pointerdown', this.onPtrMode, true);
     if (this.onHResize) window.removeEventListener('resize', this.onHResize);
-    if (this.onKey) window.removeEventListener('keydown', this.onKey);
+    if (this.onKey) window.removeEventListener('keydown', this.onKey, true);
     this.qzTeardown();
     if (this.pvIO) this.pvIO.disconnect();
     if (this.onPvScroll) window.removeEventListener('scroll', this.onPvScroll);
@@ -2644,7 +2680,8 @@ class Component extends DCLogic {
       };
     });
     const curPage = this.state.page || 'home';
-    const go = (to, after) => { const doIt = () => { this.hover = false; this.setState({ page: to, sel: null, zoom: false }); try { window.scrollTo(0, 0); } catch (err) {} if (after) setTimeout(after, 30); }; if (to === (this.state.page || 'home') && !after) { try { window.scrollTo({ top: 0, behavior: this.rm ? 'auto' : 'smooth' }); } catch (err) {} return; } this.curtainTo(doIt); };
+    const go = (to, after) => { const doIt = () => { this.hover = false; this.setState({ page: to, sel: null, zoom: false }); try { window.scrollTo(0, 0); } catch (err) {} if (this._fromPop) { this._fromPop = false; } else { try { const want = to === 'works' ? '#works' : ''; if (location.hash !== want) history.pushState(null, '', want || (location.pathname + location.search)); } catch (err) {} } if (after) setTimeout(after, 30); }; if (to === (this.state.page || 'home') && !after) { try { window.scrollTo({ top: 0, behavior: this.rm ? 'auto' : 'smooth' }); } catch (err) {} return; } this.curtainTo(doIt); };
+    this._go = go;
     const nav = [{ id: 'home', label: '首頁' }, { id: 'works', label: '作品總覽' }].map((n) => {
       const on = n.id === curPage;
       return {
